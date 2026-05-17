@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Smart Student Performance System</title>
+
+  <!-- FullCalendar -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #f5f6fa;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    h2 {
+      color: #2f3640;
+      margin-top: 20px;
+    }
+
+    .box {
+      background: white;
+      margin: 20px auto;
+      padding: 20px;
+      width: 85%;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+
+    input, select {
+      padding: 8px;
+      margin: 5px;
+      border-radius: 5px;
+      border: 1px solid gray;
+    }
+
+    button {
+      padding: 10px 18px;
+      background: #40739e;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button:hover {
+      background: #273c75;
+    }
+
+    #calendar {
+      max-width: 900px;
+      margin: auto;
+    }
+
+    canvas {
+      max-width: 700px;
+      margin: 20px auto;
+    }
+
+    #result {
+      font-size: 18px;
+      line-height: 1.8;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>📊 Smart Student Performance System</h2>
+
+<!-- INPUT SECTION -->
+<div class="box">
+
+  <h3>📘 Enter Study Data</h3>
+
+  Subject:
+  <input type="text" id="subject" placeholder="Enter Subject">
+
+  Hours:
+  <input type="number" id="hours" placeholder="Hours Studied">
+
+  Type:
+  <select id="type">
+    <option value="reading">Reading</option>
+    <option value="practice">Practice</option>
+  </select>
+
+  Focus:
+  <select id="focus">
+    <option value="focused">Focused</option>
+    <option value="not">Not Focused</option>
+  </select>
+
+  <br><br>
+
+  <button onclick="addData()">Add Study Record</button>
+
+</div>
+
+<!-- ANALYSIS -->
+<div class="box">
+
+  <h3>📈 Study Analysis</h3>
+
+  <p id="result"></p>
+
+</div>
+
+<!-- CHARTS -->
+<div class="box">
+
+  <h3>📊 Study Graphs</h3>
+
+  <h4>📚 Subject Wise Study Hours</h4>
+  <canvas id="subjectChart"></canvas>
+
+  <h4>🎯 Focus Analysis</h4>
+  <canvas id="focusChart"></canvas>
+
+  <h4>📘 Reading vs Practice</h4>
+  <canvas id="typeChart"></canvas>
+
+</div>
+
+<!-- CALENDAR -->
+<div class="box">
+
+  <h3>📅 Task Manager</h3>
+
+  <div id="calendar"></div>
+
+</div>
+
+<script>
+
+//////////////////////////////////////////////////
+// STUDY DATA STORAGE
+//////////////////////////////////////////////////
+
+let data = JSON.parse(localStorage.getItem('studyData')) || [];
+
+let subjectChart;
+let focusChart;
+let typeChart;
+
+//////////////////////////////////////////////////
+// ADD STUDY DATA
+//////////////////////////////////////////////////
+
+function addData() {
+
+  let subject = document.getElementById("subject").value;
+  let hours = parseFloat(document.getElementById("hours").value);
+  let type = document.getElementById("type").value;
+  let focus = document.getElementById("focus").value;
+
+  if (!subject || !hours) {
+    alert("Please fill all fields!");
+    return;
+  }
+
+  let entry = {
+    subject,
+    hours,
+    type,
+    focus
+  };
+
+  data.push(entry);
+
+  localStorage.setItem(
+    'studyData',
+    JSON.stringify(data)
+  );
+
+  document.getElementById("subject").value = "";
+  document.getElementById("hours").value = "";
+
+  analyze();
+}
+
+//////////////////////////////////////////////////
+// ANALYSIS FUNCTION
+//////////////////////////////////////////////////
+
+function analyze() {
+
+  let total = 0;
+  let focused = 0;
+  let practice = 0;
+
+  let subjectData = {};
+
+  let focusData = {
+    Focused: 0,
+    "Not Focused": 0
+  };
+
+  let typeData = {
+    Reading: 0,
+    Practice: 0
+  };
+
+  data.forEach(d => {
+
+    total += d.hours;
+
+    // Focus Data
+    if (d.focus === "focused") {
+      focused += d.hours;
+      focusData["Focused"] += d.hours;
+    }
+    else {
+      focusData["Not Focused"] += d.hours;
+    }
+
+    // Type Data
+    if (d.type === "practice") {
+      practice += d.hours;
+      typeData["Practice"] += d.hours;
+    }
+    else {
+      typeData["Reading"] += d.hours;
+    }
+
+    // Subject Data
+    if (!subjectData[d.subject]) {
+      subjectData[d.subject] = 0;
+    }
+
+    subjectData[d.subject] += d.hours;
+
+  });
+
+  let efficiency =
+    (focused / total) * 100 || 0;
+
+  let score =
+    Math.min(100, efficiency + practice * 2);
+
+  let suggestion = "";
+
+  if (efficiency < 50)
+    suggestion = "Improve your focus during study.";
+
+  else if (practice < total / 2)
+    suggestion = "Increase practice sessions.";
+
+  else
+    suggestion = "Excellent consistency!";
+
+  document.getElementById("result").innerHTML =
+    "<b>Total Study Hours:</b> " + total + " hrs<br>" +
+    "<b>Focus Percentage:</b> " + efficiency.toFixed(2) + "%<br>" +
+    "<b>Predicted Performance Score:</b> " + score.toFixed(2) + "<br>" +
+    "<b>Suggestion:</b> " + suggestion;
+
+  drawCharts(
+    subjectData,
+    focusData,
+    typeData
+  );
+}
+
+//////////////////////////////////////////////////
+// DRAW CHARTS
+//////////////////////////////////////////////////
+
+function drawCharts(subjectData, focusData, typeData) {
+
+  // Destroy old charts
+  if (subjectChart) subjectChart.destroy();
+  if (focusChart) focusChart.destroy();
+  if (typeChart) typeChart.destroy();
+
+  //////////////////////////////////////////////
+  // SUBJECT BAR CHART
+  //////////////////////////////////////////////
+
+  subjectChart = new Chart(
+    document.getElementById("subjectChart"),
+    {
+      type: 'bar',
+
+      data: {
+        labels: Object.keys(subjectData),
+
+        datasets: [{
+          label: 'Hours Studied',
+          data: Object.values(subjectData),
+          borderWidth: 1
+        }]
+      },
+
+      options: {
+        responsive: true
+      }
+    }
+  );
+
+  //////////////////////////////////////////////
+  // FOCUS PIE CHART
+  //////////////////////////////////////////////
+
+  focusChart = new Chart(
+    document.getElementById("focusChart"),
+    {
+      type: 'pie',
+
+      data: {
+        labels: Object.keys(focusData),
+
+        datasets: [{
+          data: Object.values(focusData)
+        }]
+      },
+
+      options: {
+        responsive: true
+      }
+    }
+  );
+
+  //////////////////////////////////////////////
+  // READING vs PRACTICE
+  //////////////////////////////////////////////
+
+  typeChart = new Chart(
+    document.getElementById("typeChart"),
+    {
+      type: 'doughnut',
+
+      data: {
+        labels: Object.keys(typeData),
+
+        datasets: [{
+          data: Object.values(typeData)
+        }]
+      },
+
+      options: {
+        responsive: true
+      }
+    }
+  );
+}
+
+//////////////////////////////////////////////////
+// RUN ANALYSIS ON PAGE LOAD
+//////////////////////////////////////////////////
+
+analyze();
+
+//////////////////////////////////////////////////
+// FULL CALENDAR
+//////////////////////////////////////////////////
+
+document.addEventListener('DOMContentLoaded', function () {
+
+  let calendarEl =
+    document.getElementById('calendar');
+
+  let savedTasks =
+    JSON.parse(localStorage.getItem('tasks')) || [];
+
+  // Ensure IDs exist
+  savedTasks = savedTasks.map(t => {
+
+    if (!t.id) {
+      t.id = Date.now() + Math.random();
+    }
+
+    return t;
+  });
+
+  localStorage.setItem(
+    'tasks',
+    JSON.stringify(savedTasks)
+  );
+
+  // Add ✔️ to completed tasks
+  let formattedTasks = savedTasks.map(t => ({
+    ...t,
+    title: t.completed
+      ? "✔️ " + t.title
+      : t.title
+  }));
+
+  //////////////////////////////////////////////////
+  // CALENDAR
+  //////////////////////////////////////////////////
+
+  let calendar = new FullCalendar.Calendar(calendarEl, {
+
+    initialView: 'dayGridMonth',
+
+    events: formattedTasks,
+
+    ////////////////////////////////////////////////
+    // ADD TASK
+    ////////////////////////////////////////////////
+
+    dateClick: function (info) {
+
+      let title =
+        prompt("Enter Task Name:");
+
+      if (!title) return;
+
+      let deadline =
+        prompt(
+          "Enter Deadline (YYYY-MM-DD):",
+          info.dateStr
+        );
+
+      if (!deadline) return;
+
+      let reminderDays =
+        prompt(
+          "Remind how many days before deadline?",
+          "1"
+        );
+
+      reminderDays = parseInt(reminderDays);
+
+      let newTask = {
+
+        id: Date.now(),
+
+        title: title,
+
+        start: deadline,
+
+        reminderDays: reminderDays,
+
+        completed: false
+      };
+
+      calendar.addEvent(newTask);
+
+      savedTasks.push(newTask);
+
+      localStorage.setItem(
+        'tasks',
+        JSON.stringify(savedTasks)
+      );
+    },
+
+    ////////////////////////////////////////////////
+    // CLICK TASK
+    ////////////////////////////////////////////////
+
+    eventClick: function (info) {
+
+      let choice = prompt(
+        "Choose option:\n\n" +
+        "1 = Mark Done\n" +
+        "2 = Mark Not Done\n" +
+        "3 = Delete"
+      );
+
+      let tasks =
+        JSON.parse(localStorage.getItem('tasks')) || [];
+
+      let id = info.event.id;
+
+      let task =
+        tasks.find(
+          t => String(t.id) === String(id)
+        );
+
+      if (!task) return;
+
+      ////////////////////////////////////////////
+
+      if (choice == "1") {
+
+        task.completed = true;
+
+        info.event.setProp(
+          'title',
+          "✔️ " + task.title
+        );
+      }
+
+      ////////////////////////////////////////////
+
+      else if (choice == "2") {
+
+        task.completed = false;
+
+        info.event.setProp(
+          'title',
+          task.title.replace("✔️ ", "")
+        );
+      }
+
+      ////////////////////////////////////////////
+
+      else if (choice == "3") {
+
+        info.event.remove();
+
+        tasks = tasks.filter(
+          t => String(t.id) !== String(id)
+        );
+      }
+
+      localStorage.setItem(
+        'tasks',
+        JSON.stringify(tasks)
+      );
+    }
+  });
+
+  calendar.render();
+
+  //////////////////////////////////////////////////
+  // REMINDER SYSTEM
+  //////////////////////////////////////////////////
+
+  setInterval(() => {
+
+    let tasks =
+      JSON.parse(localStorage.getItem('tasks')) || [];
+
+    let today = new Date();
+
+    tasks.forEach(task => {
+
+      if (task.completed) return;
+
+      let deadline =
+        new Date(task.start);
+
+      let reminderDate =
+        new Date(deadline);
+
+      reminderDate.setDate(
+        deadline.getDate() -
+        (task.reminderDays || 1)
+      );
+
+      if (
+        today.toDateString() ===
+        reminderDate.toDateString()
+      ) {
+
+        let done = confirm(
+          "⏰ Reminder:\n\n" +
+          task.title +
+          "\n\nHave you completed it?"
+        );
+
+        if (done) {
+          task.completed = true;
+        }
+      }
+
+    });
+
+    localStorage.setItem(
+      'tasks',
+      JSON.stringify(tasks)
+    );
+
+  }, 60000);
+
+});
+
+</script>
+
+</body>
+</html>
