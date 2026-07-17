@@ -32,6 +32,8 @@ JavaScript (ES6) – Application logic, task management, reminders, and performa
 <img width="500" height="400" alt="Screenshot 2026-05-15 212414" src="https://github.com/user-attachments/assets/33c4bbdf-147c-46e0-994e-31831055a779" />
 
 <img width="500" height="400" alt="Screenshot 2026-05-15 212451" src="https://github.com/user-attachments/assets/cf18c9d2-ffe5-4509-a549-e2f41fbd51ee" />
+<img width="500" height="400" alt="Screenshot 2026-05-15 212508" src="https://github.com/user-attachments/assets/17be2843-c3c6-403c-b183-3ec4ef024064" />
+
 
 
 
