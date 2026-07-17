@@ -27,7 +27,11 @@ CSS3 – Styling and responsive design
 JavaScript (ES6) – Application logic, task management, reminders, and performance analysis
 
 
-<img width="400" height="400" alt="Screenshot 2026-05-15 212356" src="https://github.com/user-attachments/assets/d432da9e-2a48-43b7-83b7-75d0d613889f" />
+<img width="500" height="400" alt="Screenshot 2026-05-15 212356" src="https://github.com/user-attachments/assets/d432da9e-2a48-43b7-83b7-75d0d613889f" />
+
+<img width="500" height="400" alt="Screenshot 2026-05-15 212414" src="https://github.com/user-attachments/assets/33c4bbdf-147c-46e0-994e-31831055a779" />
+
+<img width="500" height="400" alt="Screenshot 2026-05-15 212451" src="https://github.com/user-attachments/assets/cf18c9d2-ffe5-4509-a549-e2f41fbd51ee" />
 
 
 
