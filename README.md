@@ -1,7 +1,7 @@
 # Student-Management-system
 📚 Student Task Management System
 📌 Overview
-The Student Task Management System is a web-based productivity application developed using HTML, CSS, and JavaScript. It is designed to help students organize their daily study routine, track their learning progress, and manage academic tasks efficiently.
+The Student Task Management System is a web-based productivity application developed using HTML. It is designed to help students organize their daily study routine, track their learning progress, and manage academic tasks efficiently.
 The application allows users to log their study sessions, monitor focus hours, maintain a task calendar, and receive reminders for upcoming tasks, making it easier to stay consistent and productive.
 ✨ Features
 📖 Study Tracker
