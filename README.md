@@ -39,9 +39,9 @@ The **Student Task Management System** aims to solve this problem by providing a
 ---
 ## 🛠️ Tech Stack
 ### Frontend
-- HTML5
-- CSS3
-- JavaScript (ES6)
+- HTML
+- CSS
+- JavaScript 
 ### UI & Styling
 - CSS Flexbox
 - CSS Grid
